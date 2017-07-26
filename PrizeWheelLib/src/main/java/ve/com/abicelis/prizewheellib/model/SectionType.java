@@ -1,4 +1,4 @@
-package ve.com.abicelis.prizewheellib;
+package ve.com.abicelis.prizewheellib.model;
 
 /**
  * Created by abicelis on 26/7/2017.
