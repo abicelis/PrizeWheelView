@@ -1,6 +1,7 @@
 package ve.com.abicelis.prizewheellib;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -12,6 +13,7 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.support.annotation.ColorRes;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -20,6 +22,14 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 
 import java.util.List;
+
+import ve.com.abicelis.prizewheellib.exceptions.InvalidWheelSectionDataException;
+import ve.com.abicelis.prizewheellib.exceptions.InvalidWheelSectionsException;
+import ve.com.abicelis.prizewheellib.model.SectionType;
+import ve.com.abicelis.prizewheellib.model.WheelBitmapSection;
+import ve.com.abicelis.prizewheellib.model.WheelColorSection;
+import ve.com.abicelis.prizewheellib.model.WheelDrawableSection;
+import ve.com.abicelis.prizewheellib.model.WheelSection;
 
 /**
  * Created by abicelis on 25/7/2017.
@@ -39,10 +49,12 @@ public class PrizeWheelView extends AppCompatImageView {
 
 
     //Configurable options
-    List<WheelSection> mWheelSections;
-    boolean mCanGenerateWheel;
-    @ColorRes int mWheelSeparatorLineColor = R.color.wheel_separator_line_default;
-    @ColorRes int mWheelBorderLineColor = R.color.wheel_border_line_default;
+    private List<WheelSection> mWheelSections;
+    private boolean mCanGenerateWheel;
+    private @ColorRes int mWheelBorderLineColor = -1;
+    private int mWheelBorderLineThickness = 10;
+    private @ColorRes int mWheelSeparatorLineColor = -1;
+    private int mWheelSeparatorLineThickness = 10;
 
 
 
@@ -65,7 +77,6 @@ public class PrizeWheelView extends AppCompatImageView {
     }
 
     private void init(Context context, AttributeSet attrs) {
-        this.setBackgroundColor(Color.RED);
         setScaleType(ScaleType.MATRIX);
 
         // load the image only once
@@ -124,7 +135,7 @@ public class PrizeWheelView extends AppCompatImageView {
     /* Public methods */
 
     public void setWheelSections(List<WheelSection> wheelSections) {
-        if(wheelSections == null || wheelSections.size() < 2)
+        if(wheelSections == null || wheelSections.size() < Constants.MINIMUM_WHEEL_SECTIONS || wheelSections.size() > Constants.MAXIMUM_WHEEL_SECTIONS)
             throw new InvalidWheelSectionsException();
 
         mWheelSections = wheelSections;
@@ -135,9 +146,20 @@ public class PrizeWheelView extends AppCompatImageView {
         mWheelBorderLineColor = color;
     }
 
+    public void setWheelBorderLineThickness(int thickness) {
+        if(thickness >= 0)
+            mWheelBorderLineThickness = thickness;
+    }
+
     public void setWheelSeparatorLineColor(@Nullable @ColorRes int color) {
         mWheelSeparatorLineColor = color;
     }
+
+    public void setWheelSeparatorLineThickness(int thickness) {
+        if(thickness >= 0)
+            mWheelSeparatorLineThickness = thickness;
+    }
+
     public void generateWheel() {
         if(wheelHeight == 0)        //If view doesn't have width/height yet
             mCanGenerateWheel = true;
@@ -192,64 +214,128 @@ public class PrizeWheelView extends AppCompatImageView {
         if(mWheelSections == null)
             throw new InvalidWheelSectionsException("You must use setWheelSections() to set the sections of the wheel.");
 
+        float startAngle = 0f;
+        float sweepAngle = (360.0f / mWheelSections.size());
+        RectF box = new RectF(2, 2, wheelWidth-2 , wheelHeight-2);
 
+        //Init whitePaint for masking
         Paint whitePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         whitePaint.setColor(Color.WHITE);
-        whitePaint.setStyle(Paint.Style.STROKE);
         whitePaint.setStrokeWidth(1f);
         whitePaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
+        //Init maskPaint for erasing unmasked (transparent) sections
+        Paint maskPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        maskPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+
+        //Init mask and result canvases
         Bitmap mask = Bitmap.createBitmap(wheelWidth, wheelHeight, Bitmap.Config.ARGB_8888);
         Bitmap result = Bitmap.createBitmap(wheelWidth, wheelHeight, Bitmap.Config.ARGB_8888);
         Canvas resultCanvas = new Canvas(result);
         Canvas maskCanvas = new Canvas(mask);
 
 
-
-        float startAngle = 0f;
-        float sweepAngle = (360.0f / mWheelSections.size());
-        RectF box = new RectF(2, 2, wheelWidth-2 , wheelHeight-2);
-
-
         for(WheelSection section : mWheelSections) {
 
+            //If drawing a color, process is much simpler, handle it here
+            if(section.getType().equals(SectionType.COLOR)) {
+                int colorRes = ((WheelColorSection)section).getColor();
+
+                Paint colorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                colorPaint.setColor(ContextCompat.getColor(getContext(), colorRes));
+                colorPaint.setStrokeWidth(1f);
+                colorPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+                resultCanvas.drawArc(box, startAngle, sweepAngle, true, colorPaint);
+
+                startAngle += sweepAngle;
+                continue;
+            }
+
+
+            //Clear maskCanvas, draw new arc mask
             maskCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
             maskCanvas.drawArc(box, startAngle, sweepAngle, true, whitePaint);
 
+            //Grab the bitmap for this section
+            Bitmap sectionBitmap;
+            switch (section.getType()) {
+                case BITMAP:
+                    sectionBitmap = ((WheelBitmapSection)section).getBitmap();
+                    if(sectionBitmap == null)
+                        throw new InvalidWheelSectionDataException("Invalid bitmap. WheelSection data = " + section.toString());
+                    break;
+                case DRAWABLE:
+                    int drawableRes = ((WheelDrawableSection)section).getDrawableRes();
+                    sectionBitmap = BitmapFactory.decodeResource(getContext().getResources(), drawableRes);
+                    if(sectionBitmap == null) {
+                        try {
+                            //Try to get the name
+                            String resourceEntryName = getResources().getResourceEntryName(drawableRes);
+                            throw new InvalidWheelSectionDataException("Problem generating bitmap from drawable. Resource name='" + resourceEntryName + "', Resource ID="+ drawableRes);
+                        } catch (Resources.NotFoundException e) {
+                            throw new InvalidWheelSectionDataException("Problem generating bitmap from drawable. Could not find resource. Resource ID="+ drawableRes);
+                        }
+                    }
+                    break;
+                default:
+                    throw new InvalidWheelSectionDataException("Unexpected SectionType error. Please report this error. Section data=" + section.toString());
+            }
+
+
+
+            //Temp bitmap is necessary because sectionBitmap is immutable and therefore cannot be drawn to
             Bitmap temp = Bitmap.createBitmap(wheelWidth, wheelHeight, Bitmap.Config.ARGB_8888);
             Canvas tempCanvas = new Canvas(temp);
 
-            Bitmap original = null;
-            switch (section.getType()) {
-                case BITMAP:
-                    original = section.getBitmap();
-                    break;
-                case DRAWABLE:
-                    original = BitmapFactory.decodeResource(getContext().getResources(), section.getDrawable());
-                    break;
-                case COLOR:
-                    // TODO: 26/7/2017 Not done yet
-                    continue;
-            }
+            //Draw section image onto temp, then draw mask on it
+            tempCanvas.drawBitmap(sectionBitmap, 0, 0, null);
+            tempCanvas.drawBitmap(mask, 0, 0, maskPaint);
 
-            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
-            tempCanvas.drawBitmap(original, 0, 0, null);
-            tempCanvas.drawBitmap(mask, 0, 0, paint);
-            paint.setXfermode(null);
-
-            //Draw result after performing masking
+            //Draw masked image to resultCanvas
             resultCanvas.drawBitmap(temp, 0, 0, new Paint());
 
+            //Increment startAngle
             startAngle += sweepAngle;
+        }
+
+        //If a wheel separator line color was set
+        if(mWheelSeparatorLineColor != -1) {
+            Paint color = new Paint(Paint.ANTI_ALIAS_FLAG);
+            color.setColor(ContextCompat.getColor(getContext(), mWheelSeparatorLineColor));
+            color.setStyle(Paint.Style.STROKE);
+            color.setStrokeWidth(mWheelSeparatorLineThickness);
+
+
+            int r = Math.min(wheelWidth, wheelHeight)/2;
+            int centerX = wheelWidth/2;
+            int centerY = wheelHeight/2;
+
+            for(int i = 0; i < mWheelSections.size() ; i++) {
+
+
+                double t = 2 * Math.PI * i / mWheelSections.size();
+                int x = (int) Math.round(centerX + r * Math.cos(t));
+                int y = (int) Math.round(centerY + r * Math.sin(t));
+
+                resultCanvas.drawLine(centerX, centerY, x, y, color);
+
+            }
+        }
+
+
+        //If a wheelBorder line color was set
+        if(mWheelBorderLineColor != -1) {
+            Paint color = new Paint(Paint.ANTI_ALIAS_FLAG);
+            color.setColor(ContextCompat.getColor(getContext(), mWheelBorderLineColor));
+            color.setStyle(Paint.Style.STROKE);
+            color.setStrokeWidth(mWheelBorderLineThickness);
+
+            resultCanvas.drawCircle(wheelWidth/2, wheelHeight/2, (Math.min(wheelWidth, wheelHeight)-mWheelBorderLineThickness)/2, color);
         }
 
 
 
-
-        //setImageBitmap(mask);
         setImageBitmap(result);
-
     }
 
 
