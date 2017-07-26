@@ -7,11 +7,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
-import android.support.annotation.DrawableRes;
+import android.support.annotation.ColorRes;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
@@ -20,25 +19,34 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
+import java.util.List;
+
 /**
  * Created by abicelis on 25/7/2017.
  */
 
 public class PrizeWheelView extends AppCompatImageView {
 
+
+    //Internal data
+    private int wheelHeight, wheelWidth;
     private static Bitmap imageOriginal, imageScaled;
     private static Matrix matrix;
-    public GestureDetector gestureDetector;
-    public WheelTouchListener touchListener;
-
-    // needed for detecting inverted rotations
-    public boolean[] quadrantTouched = new boolean[] { false, false, false, false, false };
+    private GestureDetector gestureDetector;
+    private WheelTouchListener touchListener;
+    private boolean[] quadrantTouched = new boolean[] { false, false, false, false, false };
     private boolean allowRotating = true;
 
 
+    //Configurable options
+    List<WheelSection> mWheelSections;
+    boolean mCanGenerateWheel;
+    @ColorRes int mWheelSeparatorLineColor = R.color.wheel_separator_line_default;
+    @ColorRes int mWheelBorderLineColor = R.color.wheel_border_line_default;
 
-    private int wheelHeight, wheelWidth;
 
+
+    /* Constructors and init */
     public PrizeWheelView(Context context) {
         super(context);
         init(context, null);
@@ -73,7 +81,7 @@ public class PrizeWheelView extends AppCompatImageView {
             matrix.reset();
         }
 
-        gestureDetector = new GestureDetector(context, new WheelGestureListener(this));
+        gestureDetector = new GestureDetector(context, new WheelGestureListener());
         touchListener = new WheelTouchListener();
         setOnTouchListener(touchListener);
 
@@ -103,57 +111,8 @@ public class PrizeWheelView extends AppCompatImageView {
 
                     touchListener.setDimensions(wheelWidth, wheelHeight);
 
-
-
-
-
-
-                    Paint whitePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-                    whitePaint.setColor(Color.WHITE);
-                    whitePaint.setStyle(Paint.Style.STROKE);
-                    whitePaint.setStrokeWidth(1f);
-                    whitePaint.setStyle(Paint.Style.FILL_AND_STROKE);
-
-                    Bitmap mask = Bitmap.createBitmap(wheelWidth, wheelHeight, Bitmap.Config.ARGB_8888);
-                    Bitmap result = Bitmap.createBitmap(wheelWidth, wheelHeight, Bitmap.Config.ARGB_8888);
-                    Canvas resultCanvas = new Canvas(result);
-                    Canvas maskCanvas = new Canvas(mask);
-
-
-                    @DrawableRes int[] images = new int[]{R.drawable.burger, R.drawable.chicken, R.drawable.hummus, R.drawable.noodles, R.drawable.pasta};
-                    float startAngle = 0f;
-                    float sweepAngle = (360.0f / images.length);
-                    RectF box = new RectF(2, 2, wheelWidth-2 , wheelHeight-2);
-
-
-                    for(int i=3; i<images.length; i++) {
-                        maskCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-                        maskCanvas.drawArc(box, startAngle, sweepAngle, true, whitePaint);
-
-                        Bitmap temp = Bitmap.createBitmap(wheelWidth, wheelHeight, Bitmap.Config.ARGB_8888);
-                        Canvas tempCanvas = new Canvas(temp);
-
-                        Bitmap original = BitmapFactory.decodeResource(getContext().getResources(), images[i]);
-                        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-                        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
-                        tempCanvas.drawBitmap(original, 0, 0, null);
-                        tempCanvas.drawBitmap(mask, 0, 0, paint);
-                        paint.setXfermode(null);
-
-                        //Draw result after performing masking
-                        resultCanvas.drawBitmap(result, 0, 0, new Paint());
-
-                        startAngle += sweepAngle;
-                    }
-
-
-
-
-                    //setImageBitmap(mask);
-                    setImageBitmap(result);
-
-
-
+                    if(mCanGenerateWheel)
+                        generateWheelImage();
                 }
             }
         });
@@ -162,12 +121,41 @@ public class PrizeWheelView extends AppCompatImageView {
 
 
 
+    /* Public methods */
+
+    public void setWheelSections(List<WheelSection> wheelSections) {
+        if(wheelSections == null || wheelSections.size() < 2)
+            throw new InvalidWheelSectionsException();
+
+        mWheelSections = wheelSections;
+    }
+
+
+    public void setWheelBorderLineColor(@Nullable @ColorRes int color) {
+        mWheelBorderLineColor = color;
+    }
+
+    public void setWheelSeparatorLineColor(@Nullable @ColorRes int color) {
+        mWheelSeparatorLineColor = color;
+    }
+    public void generateWheel() {
+        if(wheelHeight == 0)        //If view doesn't have width/height yet
+            mCanGenerateWheel = true;
+        else
+            generateWheelImage();
+    }
+
+
+
+
+
+
     /**
      * Rotate the wheel.
      *
      * @param degrees The degrees, the wheel should get rotated.
      */
-    public void rotateWheel(float degrees) {
+    private void rotateWheel(float degrees) {
         matrix.postRotate(degrees, wheelWidth / 2, wheelHeight / 2);
         setImageMatrix(matrix);
     }
@@ -177,7 +165,7 @@ public class PrizeWheelView extends AppCompatImageView {
      * Reset touch quadrants to false.
      *
      */
-    public void resetQuadrants() {
+    private void resetQuadrants() {
         for (int i = 0; i < quadrantTouched.length; i++) {
             quadrantTouched[i] = false;
         }
@@ -186,13 +174,85 @@ public class PrizeWheelView extends AppCompatImageView {
     /**
      * @return The selected quadrant.
      */
-    public static int getQuadrant(double x, double y) {
+    private static int getQuadrant(double x, double y) {
         if (x >= 0) {
             return y >= 0 ? 1 : 4;
         } else {
             return y >= 0 ? 2 : 3;
         }
     }
+
+
+    /**
+     * Generates the wheel bitmap.
+     *
+     */
+    private void generateWheelImage() {
+
+        if(mWheelSections == null)
+            throw new InvalidWheelSectionsException("You must use setWheelSections() to set the sections of the wheel.");
+
+
+        Paint whitePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        whitePaint.setColor(Color.WHITE);
+        whitePaint.setStyle(Paint.Style.STROKE);
+        whitePaint.setStrokeWidth(1f);
+        whitePaint.setStyle(Paint.Style.FILL_AND_STROKE);
+
+        Bitmap mask = Bitmap.createBitmap(wheelWidth, wheelHeight, Bitmap.Config.ARGB_8888);
+        Bitmap result = Bitmap.createBitmap(wheelWidth, wheelHeight, Bitmap.Config.ARGB_8888);
+        Canvas resultCanvas = new Canvas(result);
+        Canvas maskCanvas = new Canvas(mask);
+
+
+
+        float startAngle = 0f;
+        float sweepAngle = (360.0f / mWheelSections.size());
+        RectF box = new RectF(2, 2, wheelWidth-2 , wheelHeight-2);
+
+
+        for(WheelSection section : mWheelSections) {
+
+            maskCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+            maskCanvas.drawArc(box, startAngle, sweepAngle, true, whitePaint);
+
+            Bitmap temp = Bitmap.createBitmap(wheelWidth, wheelHeight, Bitmap.Config.ARGB_8888);
+            Canvas tempCanvas = new Canvas(temp);
+
+            Bitmap original = null;
+            switch (section.getType()) {
+                case BITMAP:
+                    original = section.getBitmap();
+                    break;
+                case DRAWABLE:
+                    original = BitmapFactory.decodeResource(getContext().getResources(), section.getDrawable());
+                    break;
+                case COLOR:
+                    // TODO: 26/7/2017 Not done yet
+                    continue;
+            }
+
+            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+            tempCanvas.drawBitmap(original, 0, 0, null);
+            tempCanvas.drawBitmap(mask, 0, 0, paint);
+            paint.setXfermode(null);
+
+            //Draw result after performing masking
+            resultCanvas.drawBitmap(temp, 0, 0, new Paint());
+
+            startAngle += sweepAngle;
+        }
+
+
+
+
+        //setImageBitmap(mask);
+        setImageBitmap(result);
+
+    }
+
+
 
 
 
@@ -259,19 +319,13 @@ public class PrizeWheelView extends AppCompatImageView {
 
 
 
-    public class WheelGestureListener implements GestureDetector.OnGestureListener {
+    private class WheelGestureListener implements GestureDetector.OnGestureListener {
 
 
         private static final float INITIAL_FLING_VELOCITY_DAMPENING = 3;     //Number between 1 (no dampening) and 5 (Lots of dampening). Default 3
         private static final float FLING_VELOCITY_DAMPENING = 1.025F;     //Number between 1 (no dampening) and 1.1 (Lots of dampening). Default 1.06
-        private PrizeWheelView wheel;
 
 
-
-        public WheelGestureListener(PrizeWheelView wheel) {
-            this.wheel = wheel;
-
-        }
 
 
         @Override
@@ -340,11 +394,11 @@ public class PrizeWheelView extends AppCompatImageView {
             @Override
             public void run() {
                 if (Math.abs(velocity) > 5 && allowRotating) {
-                    wheel.rotateWheel(velocity / 75);
+                    rotateWheel(velocity / 75);
                     velocity /= FLING_VELOCITY_DAMPENING;
 
                     // post this instance again
-                    wheel.post(this);
+                    post(this);
                 }
             }
         }
