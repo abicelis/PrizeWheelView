@@ -4,7 +4,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -24,16 +29,20 @@ import ve.com.abicelis.prizewheellib.model.WheelSection;
 public class HomeActivity extends AppCompatActivity {
 
     PrizeWheelView wheelView;
+    ImageView homeImage;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        homeImage = (ImageView) findViewById(R.id.home_image);
+
+
         Bitmap someBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.abstract_1);
 
         //Init WheelSection list
-        List<WheelSection> wheelSections = new ArrayList<>();
+        final List<WheelSection> wheelSections = new ArrayList<>();
         wheelSections.add(new WheelBitmapSection(someBitmap));
         wheelSections.add(new WheelDrawableSection(R.drawable.abstract_2));
         wheelSections.add(new WheelDrawableSection(R.drawable.abstract_3));
@@ -60,8 +69,41 @@ public class HomeActivity extends AppCompatActivity {
         //Set onSettled listener
         wheelView.setWheelSettledListener(new WheelSettledListener() {
             @Override
-            public void onWheelSettled(int sectionIndex, double angle) {
+            public void onWheelSettled(final int sectionIndex, double angle) {
                 Toast.makeText(HomeActivity.this, "Wheel settled! Angle=" + angle + " SectionIndex=" + sectionIndex, Toast.LENGTH_SHORT).show();
+
+
+                Animation fadeOut = AnimationUtils.loadAnimation(HomeActivity.this, R.anim.fade_out);
+                homeImage.startAnimation(fadeOut);
+
+                fadeOut.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                    }
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+
+                        WheelSection section = wheelSections.get(sectionIndex);
+                        switch (section.getType()){
+                            case BITMAP:
+                                homeImage.setImageBitmap( ((WheelBitmapSection)section).getBitmap() );
+                                break;
+                            case DRAWABLE:
+                                homeImage.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), ((WheelDrawableSection)section).getDrawableRes()));
+                                break;
+                            case COLOR:
+                                homeImage.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), ((WheelColorSection)section).getColor()));
+
+                        }
+
+                        Animation fadeIn = AnimationUtils.loadAnimation(HomeActivity.this, R.anim.fade_in);
+                        homeImage.startAnimation(fadeIn);
+                    }
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                    }
+                });
+
             }
         });
 
