@@ -25,6 +25,7 @@ import java.util.List;
 
 import ve.com.abicelis.prizewheellib.exceptions.InvalidWheelSectionDataException;
 import ve.com.abicelis.prizewheellib.exceptions.InvalidWheelSectionsException;
+import ve.com.abicelis.prizewheellib.model.MarkerPosition;
 import ve.com.abicelis.prizewheellib.model.SectionType;
 import ve.com.abicelis.prizewheellib.model.WheelBitmapSection;
 import ve.com.abicelis.prizewheellib.model.WheelColorSection;
@@ -50,11 +51,13 @@ public class PrizeWheelView extends AppCompatImageView {
 
     //Configurable options
     private List<WheelSection> mWheelSections;
+    private MarkerPosition mMarkerPosition = MarkerPosition.TOP;
     private boolean mCanGenerateWheel;
     private @ColorRes int mWheelBorderLineColor = -1;
     private int mWheelBorderLineThickness = 10;
     private @ColorRes int mWheelSeparatorLineColor = -1;
     private int mWheelSeparatorLineThickness = 10;
+    private WheelSettledListener mListener;
 
 
 
@@ -141,6 +144,9 @@ public class PrizeWheelView extends AppCompatImageView {
         mWheelSections = wheelSections;
     }
 
+    public void setMarkerPosition(MarkerPosition markerPosition) {
+        mMarkerPosition = markerPosition;
+    }
 
     public void setWheelBorderLineColor(@Nullable @ColorRes int color) {
         mWheelBorderLineColor = color;
@@ -158,6 +164,10 @@ public class PrizeWheelView extends AppCompatImageView {
     public void setWheelSeparatorLineThickness(int thickness) {
         if(thickness >= 0)
             mWheelSeparatorLineThickness = thickness;
+    }
+
+    public void setWheelSettledListener(WheelSettledListener listener) {
+        mListener = listener;
     }
 
     public void generateWheel() {
@@ -203,6 +213,39 @@ public class PrizeWheelView extends AppCompatImageView {
             return y >= 0 ? 2 : 3;
         }
     }
+
+    /**
+     * @return The current rotation of the wheel.
+     */
+    private static double getCurrentRotation() {
+        float[] v = new float[9];
+        matrix.getValues(v);
+        double angle = Math.round((Math.atan2(v[Matrix.MSKEW_X], v[Matrix.MSCALE_X]) * (180 / Math.PI)) );
+
+        if(angle > 0)
+            return angle;
+        else
+            return 360 + angle;
+    }
+
+    /**
+     * @return The current section.
+     */
+    private int getCurrentSelectedSectionIndex() {
+        double sectionAngle = (360.0f / mWheelSections.size());
+        double currentRotation = getCurrentRotation() + mMarkerPosition.getDegreeOffset();
+
+        if(currentRotation > 360)
+            currentRotation = currentRotation - 360;
+
+        int selection = (int)Math.floor(currentRotation/sectionAngle);
+
+        if(selection >= mWheelSections.size())      //Rounding errors occur. Limit to items-1
+            selection = mWheelSections.size()-1;
+
+        return selection;
+    }
+
 
 
     /**
@@ -485,6 +528,10 @@ public class PrizeWheelView extends AppCompatImageView {
 
                     // post this instance again
                     post(this);
+                } else {
+                    if(mListener != null) {
+                        mListener.onWheelSettled(getCurrentSelectedSectionIndex(), getCurrentRotation());
+                    }
                 }
             }
         }
