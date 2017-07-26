@@ -17,6 +17,7 @@ import java.util.List;
 
 import ve.com.abicelis.prizewheellib.PrizeWheelView;
 import ve.com.abicelis.prizewheellib.WheelSettledListener;
+import ve.com.abicelis.prizewheellib.model.MarkerPosition;
 import ve.com.abicelis.prizewheellib.model.WheelBitmapSection;
 import ve.com.abicelis.prizewheellib.model.WheelColorSection;
 import ve.com.abicelis.prizewheellib.model.WheelDrawableSection;
@@ -59,6 +60,7 @@ public class HomeActivity extends AppCompatActivity {
         //Init wheelView and set parameters
         wheelView = (PrizeWheelView) findViewById(R.id.home_prize_wheel_view);
         wheelView.setWheelSections(wheelSections);
+        wheelView.setMarkerPosition(MarkerPosition.BOTTOM);
 
         wheelView.setWheelBorderLineColor(R.color.border);
         wheelView.setWheelBorderLineThickness(5);
