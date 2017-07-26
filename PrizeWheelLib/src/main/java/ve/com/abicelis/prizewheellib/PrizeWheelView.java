@@ -12,6 +12,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.support.annotation.ColorRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatImageView;
@@ -41,13 +42,11 @@ public class PrizeWheelView extends AppCompatImageView {
 
     //Internal data
     private int wheelHeight, wheelWidth;
-    private static Bitmap imageOriginal, imageScaled;
     private static Matrix matrix;
     private GestureDetector gestureDetector;
     private WheelTouchListener touchListener;
     private boolean[] quadrantTouched = new boolean[] { false, false, false, false, false };
     private boolean allowRotating = true;
-
 
     //Configurable options
     private List<WheelSection> mWheelSections;
@@ -58,6 +57,11 @@ public class PrizeWheelView extends AppCompatImageView {
     private @ColorRes int mWheelSeparatorLineColor = -1;
     private int mWheelSeparatorLineThickness = 10;
     private WheelSettledListener mListener;
+    private float initialFlingDampening = Constants.INITIAL_FLING_VELOCITY_DAMPENING;
+    private float flingVelocityDampening = Constants.FLING_VELOCITY_DAMPENING;
+
+
+
 
 
 
@@ -82,19 +86,8 @@ public class PrizeWheelView extends AppCompatImageView {
     private void init(Context context, AttributeSet attrs) {
         setScaleType(ScaleType.MATRIX);
 
-        // load the image only once
-        if (imageOriginal == null) {
-            imageOriginal = BitmapFactory.decodeResource(getResources(), R.drawable.default_wheel);
-        }
 
-        // initialize the matrix only once
-        if (matrix == null) {
-            matrix = new Matrix();
-        } else {
-            // not needed, you can also post the matrix immediately to restore the old state
-            matrix.reset();
-        }
-
+        matrix = new Matrix();
         gestureDetector = new GestureDetector(context, new WheelGestureListener());
         touchListener = new WheelTouchListener();
         setOnTouchListener(touchListener);
@@ -110,21 +103,6 @@ public class PrizeWheelView extends AppCompatImageView {
                     wheelHeight = getHeight();
                     wheelWidth = getWidth();
 
-                    // resize
-                    Matrix resize = new Matrix();
-                    resize.postScale((float)Math.min(wheelWidth, wheelHeight) / (float)imageOriginal.getWidth(), (float)Math.min(wheelWidth, wheelHeight) / (float)imageOriginal.getHeight());
-                    imageScaled = Bitmap.createBitmap(imageOriginal, 0, 0, imageOriginal.getWidth(), imageOriginal.getHeight(), resize, false);
-
-                    // translate to the image view's center
-                    float translateX = wheelWidth / 2 - imageScaled.getWidth() / 2;
-                    float translateY = wheelHeight / 2 - imageScaled.getHeight() / 2;
-                    matrix.postTranslate(translateX, translateY);
-
-                    setImageBitmap(imageScaled);
-                    setImageMatrix(matrix);
-
-                    touchListener.setDimensions(wheelWidth, wheelHeight);
-
                     if(mCanGenerateWheel)
                         generateWheelImage();
                 }
@@ -135,7 +113,10 @@ public class PrizeWheelView extends AppCompatImageView {
 
 
 
-    /* Public methods */
+
+
+
+    /* Public setters */
 
     public void setWheelSections(List<WheelSection> wheelSections) {
         if(wheelSections == null || wheelSections.size() < Constants.MINIMUM_WHEEL_SECTIONS || wheelSections.size() > Constants.MAXIMUM_WHEEL_SECTIONS)
@@ -144,11 +125,27 @@ public class PrizeWheelView extends AppCompatImageView {
         mWheelSections = wheelSections;
     }
 
-    public void setMarkerPosition(MarkerPosition markerPosition) {
+    public void setMarkerPosition(@NonNull MarkerPosition markerPosition) {
         mMarkerPosition = markerPosition;
     }
 
-    public void setWheelBorderLineColor(@Nullable @ColorRes int color) {
+    /**
+     * Set the initial fling dampening.
+     * Recommend a number between 1.0 (no dampening) and 5.0 (lots of dampening). Default 3.0
+     */
+    public void setInitialFlingDampening(float dampening) {
+        initialFlingDampening = dampening;
+    }
+
+    /**
+     * Set the velocity dampening when wheel is flung.
+     * Recommend a number between 1 (no dampening) and 1.1 (lots of dampening). Default 1.06
+     */
+    public void setFlingVelocityDampening(float dampening) {
+        initialFlingDampening = dampening;
+    }
+
+    public void setWheelBorderLineColor(@ColorRes int color) {
         mWheelBorderLineColor = color;
     }
 
@@ -157,7 +154,7 @@ public class PrizeWheelView extends AppCompatImageView {
             mWheelBorderLineThickness = thickness;
     }
 
-    public void setWheelSeparatorLineColor(@Nullable @ColorRes int color) {
+    public void setWheelSeparatorLineColor(@ColorRes int color) {
         mWheelSeparatorLineColor = color;
     }
 
@@ -182,6 +179,8 @@ public class PrizeWheelView extends AppCompatImageView {
 
 
 
+    /* Internal methods */
+
     /**
      * Rotate the wheel.
      *
@@ -191,7 +190,6 @@ public class PrizeWheelView extends AppCompatImageView {
         matrix.postRotate(degrees, wheelWidth / 2, wheelHeight / 2);
         setImageMatrix(matrix);
     }
-
 
     /**
      * Reset touch quadrants to false.
@@ -245,8 +243,6 @@ public class PrizeWheelView extends AppCompatImageView {
 
         return selection;
     }
-
-
 
     /**
      * Generates the wheel bitmap.
@@ -388,19 +384,9 @@ public class PrizeWheelView extends AppCompatImageView {
 
 
 
-
-
     private class WheelTouchListener implements View.OnTouchListener {
 
         private double startAngle;
-        private double wheelWidth;
-        private double wheelHeight;
-
-
-        private void setDimensions(double wheelWidth, double wheelHeight) {
-            this.wheelWidth = wheelWidth;
-            this.wheelHeight = wheelHeight;
-        }
 
         @Override
         public boolean onTouch(View v, MotionEvent event) {
@@ -444,16 +430,7 @@ public class PrizeWheelView extends AppCompatImageView {
         }
 
     }
-
-
-
-
     private class WheelGestureListener implements GestureDetector.OnGestureListener {
-
-
-        private static final float INITIAL_FLING_VELOCITY_DAMPENING = 3;     //Number between 1 (no dampening) and 5 (Lots of dampening). Default 3
-        private static final float FLING_VELOCITY_DAMPENING = 1.025F;     //Number between 1 (no dampening) and 1.1 (Lots of dampening). Default 1.06
-
 
 
 
@@ -499,10 +476,10 @@ public class PrizeWheelView extends AppCompatImageView {
                     || (q1 == 2 && q2 == 4 && quadrantTouched[3])
                     || (q1 == 4 && q2 == 2 && quadrantTouched[3])) {
 
-                post(new FlingRunnable( (-1 * (velocityX + velocityY)) / INITIAL_FLING_VELOCITY_DAMPENING ));
+                post(new FlingRunnable( (-1 * (velocityX + velocityY)) / initialFlingDampening ));
             } else {
                 // the normal rotation
-                post(new FlingRunnable( (velocityX + velocityY) / INITIAL_FLING_VELOCITY_DAMPENING ));
+                post(new FlingRunnable( (velocityX + velocityY) / initialFlingDampening ));
             }
 
             return true;
@@ -524,7 +501,7 @@ public class PrizeWheelView extends AppCompatImageView {
             public void run() {
                 if (Math.abs(velocity) > 5 && allowRotating) {
                     rotateWheel(velocity / 75);
-                    velocity /= FLING_VELOCITY_DAMPENING;
+                    velocity /= flingVelocityDampening;
 
                     // post this instance again
                     post(this);
@@ -536,5 +513,4 @@ public class PrizeWheelView extends AppCompatImageView {
             }
         }
     }
-
 }
