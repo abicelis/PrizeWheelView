@@ -9,12 +9,13 @@ This library is used on my [Chef Buddy](https://github.com/abicelis/ChefBuddy) a
 Whenever the wheel settles after being flung, the library notifies a listening class about the winning section. 
 
 The sections can be programatically set, and they require a custom List of Section objects.
-Please see the sample app *here*
+Please see the sample app below
 
 
 ## Sample app
 
-<a target="_blank" href='https://play.google.com/store/apps/details?id=ve.com.abicelis.prizewheelsample&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' width="240px"/></a>
+TODO
+<!--<a target="_blank" href='https://play.google.com/store/apps/details?id=ve.com.abicelis.prizewheelsample&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' width="240px"/></a>-->
 
 
 
