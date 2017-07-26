@@ -5,20 +5,20 @@ package ve.com.abicelis.prizewheellib.model;
  */
 
 public enum MarkerPosition {
-    TOP(90),
-    TOP_LEFT(135),
-    TOP_RIGHT(45),
+    BOTTOM_RIGHT(45),
+    BOTTOM(90),
+    BOTTOM_LEFT(135),
     LEFT(180),
+    TOP_LEFT(225),
+    TOP(270),
+    TOP_RIGHT(315),
     RIGHT(0),
-    BOTTOM(270),
-    BOTTOM_LEFT(225),
-    BOTTOM_RIGHT(315)
     ;
 
     int degreeOffset;
 
     MarkerPosition(int degreeOffset) {
-        degreeOffset = degreeOffset;
+        this.degreeOffset = degreeOffset;
     }
 
 
