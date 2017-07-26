@@ -7,5 +7,5 @@ package ve.com.abicelis.prizewheellib;
 public class Constants {
 
     public static final int MINIMUM_WHEEL_SECTIONS = 2;
-    public static final int MAXIMUM_WHEEL_SECTIONS = 10;
+    public static final int MAXIMUM_WHEEL_SECTIONS = 12;
 }
