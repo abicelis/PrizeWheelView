@@ -5,6 +5,7 @@
     >
 
     <ve.com.abicelis.prizewheellib.PrizeWheelView
+        android:id="@+id/home_prize_wheel_view"
         android:layout_width="360dp"
         android:layout_height="360dp"
         android:layout_gravity="center"
