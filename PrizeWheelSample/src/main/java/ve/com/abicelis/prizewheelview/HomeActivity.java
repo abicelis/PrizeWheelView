@@ -5,11 +5,13 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import ve.com.abicelis.prizewheellib.PrizeWheelView;
+import ve.com.abicelis.prizewheellib.WheelSettledListener;
 import ve.com.abicelis.prizewheellib.model.WheelBitmapSection;
 import ve.com.abicelis.prizewheellib.model.WheelColorSection;
 import ve.com.abicelis.prizewheellib.model.WheelDrawableSection;
@@ -54,6 +56,14 @@ public class HomeActivity extends AppCompatActivity {
 
         wheelView.setWheelSeparatorLineColor(R.color.separator);
         wheelView.setWheelSeparatorLineThickness(5);
+
+        //Set onSettled listener
+        wheelView.setWheelSettledListener(new WheelSettledListener() {
+            @Override
+            public void onWheelSettled(int sectionIndex, double angle) {
+                Toast.makeText(HomeActivity.this, "Wheel settled! Angle=" + angle + " SectionIndex=" + sectionIndex, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         //Finally, generate wheel background
         wheelView.generateWheel();
