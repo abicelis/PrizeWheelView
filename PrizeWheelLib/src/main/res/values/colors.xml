@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="wheel_separator_line_default">#616161</color>
+    <color name="wheel_border_line_default">#616161</color>
+
+</resources>
