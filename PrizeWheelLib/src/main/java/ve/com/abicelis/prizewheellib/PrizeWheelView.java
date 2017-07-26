@@ -506,7 +506,7 @@ public class PrizeWheelView extends AppCompatImageView {
                     // post this instance again
                     post(this);
                 } else {
-                    if(mListener != null) {
+                    if(mListener != null && allowRotating) {
                         mListener.onWheelSettled(getCurrentSelectedSectionIndex(), getCurrentRotation());
                     }
                 }
