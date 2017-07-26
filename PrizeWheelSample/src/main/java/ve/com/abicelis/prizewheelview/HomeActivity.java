@@ -92,8 +92,9 @@ public class HomeActivity extends AppCompatActivity {
                                 homeImage.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), ((WheelDrawableSection)section).getDrawableRes()));
                                 break;
                             case COLOR:
+                                homeImage.setImageDrawable(null);
                                 homeImage.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), ((WheelColorSection)section).getColor()));
-
+                                break;
                         }
 
                         Animation fadeIn = AnimationUtils.loadAnimation(HomeActivity.this, R.anim.fade_in);
