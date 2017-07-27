@@ -61,7 +61,7 @@ public class PrizeWheelView extends RelativeLayout {
     private int mWheelBorderLineThickness = 10;
     private @ColorRes int mWheelSeparatorLineColor = -1;
     private int mWheelSeparatorLineThickness = 10;
-    private WheelSettledListener mListener;
+    private WheelEventsListener mListener;
     private float initialFlingDampening = Constants.INITIAL_FLING_VELOCITY_DAMPENING;
     private float flingVelocityDampening = Constants.FLING_VELOCITY_DAMPENING;
 
@@ -194,7 +194,7 @@ public class PrizeWheelView extends RelativeLayout {
             mWheelSeparatorLineThickness = thickness;
     }
 
-    public void setWheelSettledListener(WheelSettledListener listener) {
+    public void setWheelSettledListener(WheelEventsListener listener) {
         mListener = listener;
     }
 
@@ -508,9 +508,13 @@ public class PrizeWheelView extends RelativeLayout {
                     || (q1 == 4 && q2 == 2 && quadrantTouched[3])) {
 
                 post(new FlingRunnable( (-1 * (velocityX + velocityY)) / initialFlingDampening ));
+                if(mListener != null)
+                    mListener.onWheelFlung();
             } else {
                 // the normal rotation
                 post(new FlingRunnable( (velocityX + velocityY) / initialFlingDampening ));
+                if(mListener != null)
+                    mListener.onWheelFlung();
             }
 
             return true;
