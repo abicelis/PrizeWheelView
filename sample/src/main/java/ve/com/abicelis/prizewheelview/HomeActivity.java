@@ -68,7 +68,7 @@ public class HomeActivity extends AppCompatActivity {
         wheelView.setWheelSeparatorLineThickness(5);
 
         //Set onSettled listener
-        wheelView.setWheelSettledListener(new WheelSettledListener());
+        wheelView.setWheelSettledListener(new WheelEventsListener());
 
         //Finally, generate wheel background
         wheelView.generateWheel();
@@ -77,7 +77,12 @@ public class HomeActivity extends AppCompatActivity {
 
 
 
-    private class WheelSettledListener implements ve.com.abicelis.prizewheellib.WheelSettledListener {
+    private class WheelEventsListener implements ve.com.abicelis.prizewheellib.WheelEventsListener {
+
+        @Override
+        public void onWheelFlung() {
+            Toast.makeText(HomeActivity.this, "Wheel has just been flung", Toast.LENGTH_SHORT).show();
+        }
 
         @Override
         public void onWheelSettled(final int sectionIndex, double angle) {
