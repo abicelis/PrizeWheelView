@@ -88,7 +88,7 @@ TODO UPLOAD APP TO PLAY STORE
 	//Set onSettled listener
 	wheelView.setWheelSettledListener(new WheelSettledListener());
 ```
-
+*Note that **wheelView.generateWheel();** must be called **after** setting all the options!!*
 
 For more options and code, please check the [sample project](https://github.com/abicelis/PrizeWheelView/blob/master/PrizeWheelSample/)
 
