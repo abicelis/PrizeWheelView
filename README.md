@@ -23,7 +23,7 @@ TODO UPLOAD APP TO PLAY STORE
 ## Usage
 
 
-**Add the dependency to your gradle file**
+1) **Add the dependency to your gradle file**
 ```javascript
 	TODOO ADD DEPENDENCY
 	dependencies {
@@ -31,7 +31,7 @@ TODO UPLOAD APP TO PLAY STORE
 	}
 ```
 
-**Add the view to your layout**
+2) **Add the view to your layout**
 ```xml
 	<ve.com.abicelis.prizewheellib.PrizeWheelView
 	android:id="@+id/home_prize_wheel_view"
@@ -45,7 +45,7 @@ TODO UPLOAD APP TO PLAY STORE
 
 
 
-**In your view class (activity/fragment)**
+3) **In your view class (activity/fragment)**
 ```java
 	//Get the wheel view
 	wheelView = (PrizeWheelView) findViewById(R.id.home_prize_wheel_view);
@@ -64,7 +64,7 @@ TODO UPLOAD APP TO PLAY STORE
 ```
 
 
-**Listen when the wheel has settled**
+4) **Listen when the wheel has settled**
 ```java
 	wheelView.setWheelSettledListener(new ve.com.abicelis.prizewheellib.WheelSettledListener() {
 	    @Override
@@ -75,7 +75,7 @@ TODO UPLOAD APP TO PLAY STORE
 ```
 
 
-**Set even more options**
+5) **Set even more options**
 ```java
 	wheelView.setMarkerPosition(MarkerPosition.TOP_RIGHT);
 	
