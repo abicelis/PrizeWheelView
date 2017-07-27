@@ -120,7 +120,7 @@ public class PrizeWheelView extends RelativeLayout {
                     int minDimen = wheelHeight = Math.min(getHeight(), getWidth());
 
                     //Apply the margin for the marker. Use those dimensions for the wheel
-                    wheelHeight = wheelWidth = minDimen - Constants.WHEEL_MARGIN_FOR_MARKER_DP*2;
+                    wheelHeight = wheelWidth = minDimen - (int)(DimensionUtil.convertDpToPixel(Constants.WHEEL_MARGIN_FOR_MARKER_DP)*2);
 
                     //Resize the wheel's imageview
                     mWheel.getLayoutParams().height = wheelHeight;
