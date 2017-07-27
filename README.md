@@ -32,21 +32,20 @@ TODO UPLOAD APP TO PLAY STORE
 
 
 **Add the view to your layout**
-
-		<ve.com.abicelis.prizewheellib.PrizeWheelView
-        	android:id="@+id/home_prize_wheel_view"
-        	android:layout_width="match_parent"
-        	android:layout_height="match_parent"
-        	android:layout_gravity="center"
-        	/>
-
+```xml
+	<ve.com.abicelis.prizewheellib.PrizeWheelView
+    	android:id="@+id/home_prize_wheel_view"
+    	android:layout_width="match_parent"
+    	android:layout_height="match_parent"
+    	android:layout_gravity="center"
+    	/>
+```
 *Note that you can set **layout_width** and **layout_height** to predefined values, or one or both to **match_parent**. The View will take as much space as it can, while still being square.*
 
 
 
 **In your view class (activity/fragment)**
-
-	```xml
+```java
 		//Get the wheel view
         wheelView = (PrizeWheelView) findViewById(R.id.home_prize_wheel_view);
 
@@ -61,30 +60,34 @@ TODO UPLOAD APP TO PLAY STORE
 
         //Finally, generate wheel
         wheelView.generateWheel();
-	```
-
-
-```xml
-    <!— Must be last for right layering display —>
-    <FrameLayout
-        android:id="@+id/toolbar_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/theme_primary" />
-
-        <com.miguelcatalan.materialsearchview.MaterialSearchView
-            android:id="@+id/search_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </FrameLayout>
 ```
 
+
+**Listen when the wheel has settled**
+```java
+    wheelView.setWheelSettledListener(new ve.com.abicelis.prizewheellib.WheelSettledListener() {
+        @Override
+        public void onWheelSettled(int sectionIndex, double angle) {
+            //Handle wheel settle here
+        }
+    });
+```
+
+
 **Set even more options**
+```java
+    wheelView.setMarkerPosition(MarkerPosition.TOP_RIGHT);
+
+    wheelView.setWheelBorderLineColor(R.color.border);
+    wheelView.setWheelBorderLineThickness(5);
+
+    wheelView.setWheelSeparatorLineColor(R.color.separator);
+    wheelView.setWheelSeparatorLineThickness(5);
+
+    //Set onSettled listener
+    wheelView.setWheelSettledListener(new WheelSettledListener());
+```
+
 
 For more options and code, please check the [sample project](https://github.com/abicelis/PrizeWheelView/blob/master/PrizeWheelSample/)
 
