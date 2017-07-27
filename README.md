@@ -25,20 +25,20 @@ TODO UPLOAD APP TO PLAY STORE
 
 **Add the dependency to your gradle file**
 
-		TODOO ADD DEPENDENCY
-		dependencies {
-    		compile 've.com.abicelis.prizewheelview:prizewheelview:1.0.0'
-		}
+TODOO ADD DEPENDENCY
+dependencies {
+	compile 've.com.abicelis.prizewheelview:prizewheelview:1.0.0'
+}
 
 
 **Add the view to your layout**
-```xml
-	<ve.com.abicelis.prizewheellib.PrizeWheelView
-    	android:id="@+id/home_prize_wheel_view"
-    	android:layout_width="match_parent"
-    	android:layout_height="match_parent"
-    	android:layout_gravity="center"
-    	/>
+```javascript
+<ve.com.abicelis.prizewheellib.PrizeWheelView
+	android:id="@+id/home_prize_wheel_view"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:layout_gravity="center"
+	/>
 ```
 *Note that you can set **layout_width** and **layout_height** to predefined values, or one or both to **match_parent**. The View will take as much space as it can, while still being square.*
 
@@ -46,46 +46,46 @@ TODO UPLOAD APP TO PLAY STORE
 
 **In your view class (activity/fragment)**
 ```java
-		//Get the wheel view
-        wheelView = (PrizeWheelView) findViewById(R.id.home_prize_wheel_view);
+//Get the wheel view
+wheelView = (PrizeWheelView) findViewById(R.id.home_prize_wheel_view);
 
-		//Populate a List of Sections
-		List<WheelSection> wheelSections = new ArrayList<>();
-        wheelSections.add(new WheelBitmapSection(someBitmap));
-        wheelSections.add(new WheelDrawableSection(R.drawable.some_drawable));
-        wheelSections.add(new WheelColorSection(R.color.some_color));
+//Populate a List of Sections
+List<WheelSection> wheelSections = new ArrayList<>();
+wheelSections.add(new WheelBitmapSection(someBitmap));
+wheelSections.add(new WheelDrawableSection(R.drawable.some_drawable));
+wheelSections.add(new WheelColorSection(R.color.some_color));
 
-		//Set those sections
-        wheelView.setWheelSections(wheelSections);
+//Set those sections
+wheelView.setWheelSections(wheelSections);
 
-        //Finally, generate wheel
-        wheelView.generateWheel();
+//Finally, generate wheel
+wheelView.generateWheel();
 ```
 
 
 **Listen when the wheel has settled**
 ```java
-    wheelView.setWheelSettledListener(new ve.com.abicelis.prizewheellib.WheelSettledListener() {
-        @Override
-        public void onWheelSettled(int sectionIndex, double angle) {
-            //Handle wheel settle here
-        }
-    });
+wheelView.setWheelSettledListener(new ve.com.abicelis.prizewheellib.WheelSettledListener() {
+    @Override
+    public void onWheelSettled(int sectionIndex, double angle) {
+        //Handle wheel settle here
+    }
+});
 ```
 
 
 **Set even more options**
 ```java
-    wheelView.setMarkerPosition(MarkerPosition.TOP_RIGHT);
+wheelView.setMarkerPosition(MarkerPosition.TOP_RIGHT);
 
-    wheelView.setWheelBorderLineColor(R.color.border);
-    wheelView.setWheelBorderLineThickness(5);
+wheelView.setWheelBorderLineColor(R.color.border);
+wheelView.setWheelBorderLineThickness(5);
 
-    wheelView.setWheelSeparatorLineColor(R.color.separator);
-    wheelView.setWheelSeparatorLineThickness(5);
+wheelView.setWheelSeparatorLineColor(R.color.separator);
+wheelView.setWheelSeparatorLineThickness(5);
 
-    //Set onSettled listener
-    wheelView.setWheelSettledListener(new WheelSettledListener());
+//Set onSettled listener
+wheelView.setWheelSettledListener(new WheelSettledListener());
 ```
 
 
