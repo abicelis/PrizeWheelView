@@ -22,9 +22,16 @@ TODO UPLOAD APP TO PLAY STORE
 
 ## Usage
 
-The minimum code required to use the library is as follows:
 
-1. Add the view to your layout
+**Add the dependency to your gradle file**
+
+		TODOO ADD DEPENDENCY
+		dependencies {
+    		compile 've.com.abicelis.prizewheelview:prizewheelview:1.0.0'
+		}
+
+
+**Add the view to your layout**
 
 		<ve.com.abicelis.prizewheellib.PrizeWheelView
         	android:id="@+id/home_prize_wheel_view"
@@ -32,10 +39,14 @@ The minimum code required to use the library is as follows:
         	android:layout_height="match_parent"
         	android:layout_gravity="center"
         	/>
-Note that you can set **layout_width** and **layout_height** to predefined values, or one or both to **match_parent**. The View will take as much space as it can fit a square in.
 
-2. In your view class (activity/fragment)
+*Note that you can set **layout_width** and **layout_height** to predefined values, or one or both to **match_parent**. The View will take as much space as it can, while still being square.*
 
+
+
+**In your view class (activity/fragment)**
+
+	```xml
 		//Get the wheel view
         wheelView = (PrizeWheelView) findViewById(R.id.home_prize_wheel_view);
 
@@ -50,6 +61,9 @@ Note that you can set **layout_width** and **layout_height** to predefined value
 
         //Finally, generate wheel
         wheelView.generateWheel();
+	```
+
+**Set even more options**
 
 For more options and code, please check the [sample project](https://github.com/abicelis/PrizeWheelView/blob/master/PrizeWheelSample/)
 
