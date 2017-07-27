@@ -15,12 +15,14 @@ import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import java.util.List;
 
@@ -37,10 +39,13 @@ import ve.com.abicelis.prizewheellib.model.WheelSection;
  * Created by abicelis on 25/7/2017.
  */
 
-public class PrizeWheelView extends AppCompatImageView {
+public class PrizeWheelView extends RelativeLayout {
 
 
     //Internal data
+    ImageView mWheel;
+    ImageView mMarker;
+    RelativeLayout mMarkerContainer;
     private int wheelHeight, wheelWidth;
     private static Matrix matrix;
     private GestureDetector gestureDetector;
@@ -84,7 +89,17 @@ public class PrizeWheelView extends AppCompatImageView {
     }
 
     private void init(Context context, AttributeSet attrs) {
-        setScaleType(ScaleType.MATRIX);
+
+
+        LayoutInflater inflater = (LayoutInflater) context
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater.inflate(R.layout.prize_wheel_view, this);
+
+        mWheel = (ImageView) findViewById(R.id.prize_wheel_view_wheel);
+        mMarker = (ImageView) findViewById(R.id.prize_wheel_view_marker);
+        mMarkerContainer = (RelativeLayout) findViewById(R.id.prize_wheel_view_marker_container);
+
+        mWheel.setScaleType(ImageView.ScaleType.MATRIX);
 
 
         matrix = new Matrix();
@@ -100,8 +115,23 @@ public class PrizeWheelView extends AppCompatImageView {
             public void onGlobalLayout() {
                 // method called more than once, but the values only need to be initialized one time
                 if (wheelHeight == 0 || wheelWidth == 0) {
-                    wheelHeight = getHeight();
-                    wheelWidth = getWidth();
+
+                    //Grab the shortest of the container dimensions
+                    int minDimen = wheelHeight = Math.min(getHeight(), getWidth());
+
+                    //Apply the margin for the marker. Use those dimensions for the wheel
+                    wheelHeight = wheelWidth = minDimen - Constants.WHEEL_MARGIN_FOR_MARKER_DP*2;
+
+                    //Resize the wheel's imageview
+                    mWheel.getLayoutParams().height = wheelHeight;
+                    mWheel.getLayoutParams().width = wheelWidth;
+                    mWheel.requestLayout();
+
+                    //Resize the marker's container
+                    mMarkerContainer.getLayoutParams().height = minDimen;
+                    mMarkerContainer.getLayoutParams().width = minDimen;
+                    mMarkerContainer.requestLayout();
+                    mMarkerContainer.setRotation(mMarkerPosition.getDegreeOffset());
 
                     if(mCanGenerateWheel)
                         generateWheelImage();
@@ -127,6 +157,7 @@ public class PrizeWheelView extends AppCompatImageView {
 
     public void setMarkerPosition(@NonNull MarkerPosition markerPosition) {
         mMarkerPosition = markerPosition;
+        mMarkerContainer.setRotation(mMarkerPosition.getDegreeOffset());
     }
 
     /**
@@ -188,7 +219,7 @@ public class PrizeWheelView extends AppCompatImageView {
      */
     private void rotateWheel(float degrees) {
         matrix.postRotate(degrees, wheelWidth / 2, wheelHeight / 2);
-        setImageMatrix(matrix);
+        mWheel.setImageMatrix(matrix);
     }
 
     /**
@@ -374,7 +405,7 @@ public class PrizeWheelView extends AppCompatImageView {
 
 
 
-        setImageBitmap(result);
+        mWheel.setImageBitmap(result);
     }
 
 
