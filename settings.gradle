@@ -1,1 +1,1 @@
-include ':PrizeWheelSample', ':PrizeWheelLib'
+include ':sample', ':prizewheelview'
