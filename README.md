@@ -34,10 +34,10 @@ TODO UPLOAD APP TO PLAY STORE
 2) **Add the view to your layout**
 ```xml
 	<ve.com.abicelis.prizewheellib.PrizeWheelView
-	android:id="@+id/home_prize_wheel_view"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:layout_gravity="center"
+		android:id="@+id/home_prize_wheel_view"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_gravity="center"
 	/>
 ```
 
