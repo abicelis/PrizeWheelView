@@ -1,7 +1,5 @@
 # Prize Wheel View #
 
-THIS SOFTWARE IS CURRENTLY IN DEVELOPMENT
-
 
 ## About the library
 
@@ -9,7 +7,10 @@ This library is used on my [Chef Buddy](https://github.com/abicelis/ChefBuddy) a
 Whenever the wheel settles after being flung, the library notifies a listening class about the winning section. 
 
 The sections can be programatically set, and they require a custom List of Section objects.
-Please see the sample app below
+Please see the demo below!
+
+![](https://github.com/abicelis/PrizeWheelView/blob/master/graphics/prize_wheel_view_demo.gif)
+
 
 
 ## Sample app
