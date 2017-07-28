@@ -16,7 +16,7 @@ The sections can be programatically set, and they require a custom List of Secti
 Please see the sample application below!
 
 ![](https://github.com/abicelis/PrizeWheelView/blob/master/graphics/prize_wheel_view_demo.gif)
-
+![](https://github.com/abicelis/PrizeWheelView/blob/master/graphics/prize_wheel_view_demo_2.gif)
 
 
 ## Sample application
@@ -26,7 +26,7 @@ Please see the sample application below!
 ## Gradle dependency
 ```javascript
 	dependencies {
-    		compile 've.com.abicelis:prizewheelview:1.0.1'
+    		compile 've.com.abicelis:prizewheelview:1.0.3'
 	}
 ```
 
@@ -92,7 +92,7 @@ Please see the sample application below!
 	wheelView.setWheelSeparatorLineThickness(5);
 	
 	//Set onSettled listener
-	wheelView.setWheelSettledListener(new WheelSettledListener());
+	wheelView.setWheelEventsListener(new WheelEventsListener() {...});
 ```
 *Note that **wheelView.generateWheel();** must be called **after** setting all the options!!*
 
