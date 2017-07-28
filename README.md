@@ -24,7 +24,7 @@ Please see the sample application below!
 ## Gradle dependency
 ```javascript
 	dependencies {
-    	compile 've.com.abicelis:prizewheelview:1.0.1'
+    		compile 've.com.abicelis:prizewheelview:1.0.1'
 	}
 ```
 
