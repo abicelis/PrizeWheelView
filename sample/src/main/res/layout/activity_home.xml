@@ -17,4 +17,43 @@
         android:layout_height="360dp"
         android:layout_gravity="center"
         />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="24dp"
+        android:paddingStart="24dp"
+        android:paddingBottom="8dp"
+        android:paddingRight="8dp"
+        android:paddingEnd="8dp"
+        >
+        <Button
+            android:id="@+id/stop_wheel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/stop_wheel"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"/>
+
+        <Button
+            android:id="@+id/fling_wheel_cc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_toStartOf="@id/stop_wheel"
+            android:layout_toLeftOf="@id/stop_wheel"
+            android:text="@string/fling_wheel_cc"/>
+
+        <Button
+            android:id="@+id/fling_wheel_cw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_toStartOf="@id/fling_wheel_cc"
+            android:layout_toLeftOf="@id/fling_wheel_cc"
+            android:text="@string/fling_wheel_cw"/>
+    </RelativeLayout>
+
 </FrameLayout>
