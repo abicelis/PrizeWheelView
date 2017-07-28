@@ -67,17 +67,23 @@ Please see the sample application below!
 
 3) **Listen when the wheel has settled**
 ```java
-	wheelView.setWheelSettledListener(new ve.com.abicelis.prizewheellib.WheelEventsListener() {
-        @Override
-        public void onWheelFlung() {
-	        //Handle wheel flinging here
-        }
-
-	    @Override
-	    public void onWheelSettled(int sectionIndex, double angle) {
-	        //Handle wheel settle here
-	    }
+	mWheelView.setWheelEventsListener(new WheelEventsListener() {
+		@Override
+		public void onWheelStopped() {
+			//Handle wheel stopped here
+		}
+		
+		@Override
+		public void onWheelFlung() {
+			//Handle wheel flinging here
+		}
+		
+		@Override
+		public void onWheelSettled(int sectionIndex, double angle) {
+			//Handle wheel settle here
+		}
 	});
+
 ```
 
 
