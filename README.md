@@ -19,9 +19,8 @@ Please see the sample application below!
 
 ## Gradle dependency
 ```javascript
-	TODOO ADD DEPENDENCY
 	dependencies {
-		compile '...'
+    	compile 've.com.abicelis:prizewheelview:1.0.1'
 	}
 ```
 
