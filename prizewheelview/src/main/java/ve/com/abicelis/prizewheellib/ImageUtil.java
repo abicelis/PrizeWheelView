@@ -14,6 +14,8 @@ public class ImageUtil {
 
     /**
      * Evaluates a Bitmap, returns a Rect with its transparency cropped
+     * Not my code, extracted from:
+     * https://github.com/AlvaroMenezes/CropTrimTransparentImage
      */
     public static Rect getCroppedRect(Bitmap bitmap){
 
