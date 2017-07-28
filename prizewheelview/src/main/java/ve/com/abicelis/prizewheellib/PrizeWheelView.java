@@ -196,7 +196,7 @@ public class PrizeWheelView extends RelativeLayout {
             mWheelSeparatorLineThickness = thickness;
     }
 
-    public void setWheelSettledListener(WheelEventsListener listener) {
+    public void setWheelEventsListener(WheelEventsListener listener) {
         mListener = listener;
     }
 

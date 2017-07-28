@@ -96,7 +96,7 @@ public class HomeActivity extends AppCompatActivity {
         wheelView.setWheelSeparatorLineThickness(5);
 
         //Set onSettled listener
-        wheelView.setWheelSettledListener(new WheelEventsListener());
+        wheelView.setWheelEventsListener(new WheelEventsListener());
 
         //Finally, generate wheel background
         wheelView.generateWheel();
