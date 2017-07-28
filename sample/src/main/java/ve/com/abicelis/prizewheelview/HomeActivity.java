@@ -6,8 +6,10 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -29,6 +31,9 @@ public class HomeActivity extends AppCompatActivity {
 
     PrizeWheelView wheelView;
     ImageView homeImage;
+    Button stop;
+    Button flingCC;
+    Button flingCW;
     final List<WheelSection> wheelSections = new ArrayList<>();
 
 
@@ -38,6 +43,29 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         homeImage = (ImageView) findViewById(R.id.home_image);
+        stop = (Button) findViewById(R.id.stop_wheel);
+        flingCC = (Button) findViewById(R.id.fling_wheel_cc);
+        flingCW = (Button) findViewById(R.id.fling_wheel_cw);
+
+
+        stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                wheelView.stopWheel();
+            }
+        });
+        flingCW.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                wheelView.flingWheel(20000, true);
+            }
+        });
+        flingCC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                wheelView.flingWheel(20000, false);
+            }
+        });
 
 
         Bitmap someBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.abstract_1);
@@ -78,6 +106,11 @@ public class HomeActivity extends AppCompatActivity {
 
 
     private class WheelEventsListener implements ve.com.abicelis.prizewheellib.WheelEventsListener {
+
+        @Override
+        public void onWheelStopped() {
+            Toast.makeText(HomeActivity.this, "Wheel has just been stopped", Toast.LENGTH_SHORT).show();
+        }
 
         @Override
         public void onWheelFlung() {
