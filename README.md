@@ -1,7 +1,9 @@
 # Prize Wheel View #
-![Platform](https://img.shields.io/badge/platform-android-green.svg)
-![Version](https://img.shields.io/badge/jcenter-v1.0.1-green.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
+
+[![jcenter](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/abicelis/PrizeWheelView/blob/master/LICENSE)
+[![jcenter](https://img.shields.io/badge/platform-android-green.svg)](https://developer.android.com/index.html)
+[![jcenter](https://img.shields.io/badge/jcenter-v1.0.1-green.svg)](http://jcenter.bintray.com/ve/com/abicelis/prizewheelview/)
+
 
 
 
