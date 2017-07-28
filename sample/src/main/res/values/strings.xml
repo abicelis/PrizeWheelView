@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">PrizeWheelView</string>
+
+    <string name="fling_wheel_cc">Fling CC</string>
+    <string name="fling_wheel_cw">Fling CW</string>
+    <string name="stop_wheel">Stop</string>
 </resources>
