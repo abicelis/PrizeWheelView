@@ -10,6 +10,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
@@ -52,6 +53,7 @@ public class PrizeWheelView extends RelativeLayout {
     private WheelTouchListener touchListener;
     private boolean[] quadrantTouched = new boolean[] { false, false, false, false, false };
     private boolean allowRotating = true;
+    private FlingRunnable flingRunnable;
 
     //Configurable options
     private List<WheelSection> mWheelSections;
@@ -205,7 +207,18 @@ public class PrizeWheelView extends RelativeLayout {
             generateWheelImage();
     }
 
+    public void stopWheel(){
+        allowRotating = false;
+    }
 
+    /**
+     * Fling the wheel
+     * @param velocity the speed of the fling
+     * @param clockwise
+     */
+    public void flingWheel(int velocity, boolean clockwise) {
+        doFlingWheel((clockwise ? -velocity : velocity));
+    }
 
 
 
@@ -325,6 +338,7 @@ public class PrizeWheelView extends RelativeLayout {
             //Clear maskCanvas, draw new arc mask
             maskCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
             maskCanvas.drawArc(box, startAngle, sweepAngle, true, whitePaint);
+            Rect drawnMaskRect = ImageUtil.getCroppedRect(mask);
 
             //Grab the bitmap for this section
             Bitmap sectionBitmap;
@@ -358,7 +372,7 @@ public class PrizeWheelView extends RelativeLayout {
             Canvas tempCanvas = new Canvas(temp);
 
             //Draw section image onto temp, then draw mask on it
-            tempCanvas.drawBitmap(sectionBitmap, 0, 0, null);
+            tempCanvas.drawBitmap(sectionBitmap, null, drawnMaskRect, null);
             tempCanvas.drawBitmap(mask, 0, 0, maskPaint);
 
             //Draw masked image to resultCanvas
@@ -409,7 +423,20 @@ public class PrizeWheelView extends RelativeLayout {
     }
 
 
+    private void doFlingWheel(float velocity) {
 
+        //Stop previous fling
+        removeCallbacks(flingRunnable);
+
+        //Notify fling
+        if(mListener != null)
+            mListener.onWheelFlung();
+
+        //Launch new fling
+        allowRotating = true;
+        flingRunnable = new FlingRunnable( velocity / initialFlingDampening );
+        post(flingRunnable);
+    }
 
 
 
@@ -507,45 +534,58 @@ public class PrizeWheelView extends RelativeLayout {
                     || (q1 == 2 && q2 == 4 && quadrantTouched[3])
                     || (q1 == 4 && q2 == 2 && quadrantTouched[3])) {
 
-                post(new FlingRunnable( (-1 * (velocityX + velocityY)) / initialFlingDampening ));
-                if(mListener != null)
-                    mListener.onWheelFlung();
+                doFlingWheel((-1 * (velocityX + velocityY)));
+                //post(new FlingRunnable( (-1 * (velocityX + velocityY)) / initialFlingDampening ));
+                //if(mListener != null)
+                    //mListener.onWheelFlung();
             } else {
                 // the normal rotation
-                post(new FlingRunnable( (velocityX + velocityY) / initialFlingDampening ));
-                if(mListener != null)
-                    mListener.onWheelFlung();
+                doFlingWheel((velocityX + velocityY));
+
+                //post(new FlingRunnable( (velocityX + velocityY) / initialFlingDampening ));
+                //if(mListener != null)
+                    //mListener.onWheelFlung();
             }
 
             return true;
         }
 
 
-        /**
-         * A {@link Runnable} for animating the the dialer's fling.
-         */
-        private class FlingRunnable implements Runnable {
+    }
 
-            private float velocity;
 
-            public FlingRunnable(float velocity) {
-                this.velocity = velocity;
-            }
+    /**
+     * A {@link Runnable} for animating the the dialer's fling.
+     */
+    private class FlingRunnable implements Runnable {
 
-            @Override
-            public void run() {
-                if (Math.abs(velocity) > 5 && allowRotating) {
-                    rotateWheel(velocity / 75);
-                    velocity /= flingVelocityDampening;
+        private float velocity;
 
-                    // post this instance again
-                    post(this);
-                } else {
-                    if(mListener != null && allowRotating) {
-                        mListener.onWheelSettled(getCurrentSelectedSectionIndex(), getCurrentRotation());
-                    }
+        public FlingRunnable(float velocity) {
+            this.velocity = velocity;
+        }
+
+        @Override
+        public void run() {
+
+            if(!allowRotating) {        //Fling has been stopped, so stop now.
+                if(mListener != null) {
+                    mListener.onWheelStopped();
+                }
+            } else if (Math.abs(velocity) > 5) {
+                rotateWheel(velocity / 75);
+                velocity /= flingVelocityDampening;
+
+                // post this instance again
+                post(this);
+            } else {
+                if(mListener != null) {
+                    mListener.onWheelSettled(getCurrentSelectedSectionIndex(), getCurrentRotation());
                 }
             }
         }
     }
+
+
+
 }
