@@ -5,6 +5,7 @@ package ve.com.abicelis.prizewheellib;
  */
 
 public interface WheelEventsListener {
+    void onWheelStopped();
     void onWheelFlung();
     void onWheelSettled(int sectionIndex, double angle);
 }
