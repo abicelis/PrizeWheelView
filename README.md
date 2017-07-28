@@ -65,7 +65,7 @@ Please see the sample application below!
 ```
 
 
-3) **Listen when the wheel has settled**
+3) **Listen for wheel events**
 ```java
 	mWheelView.setWheelEventsListener(new WheelEventsListener() {
 		@Override
