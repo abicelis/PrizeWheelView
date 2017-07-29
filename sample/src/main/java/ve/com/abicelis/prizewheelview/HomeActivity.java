@@ -90,10 +90,10 @@ public class HomeActivity extends AppCompatActivity {
         wheelView.setMarkerPosition(MarkerPosition.TOP_RIGHT);
 
         wheelView.setWheelBorderLineColor(R.color.border);
-        wheelView.setWheelBorderLineThickness(5);
+        wheelView.setWheelBorderLineThickness(2);
 
         wheelView.setWheelSeparatorLineColor(R.color.separator);
-        wheelView.setWheelSeparatorLineThickness(5);
+        wheelView.setWheelSeparatorLineThickness(2);
 
         //Set onSettled listener
         wheelView.setWheelEventsListener(new WheelEventsListener());
