@@ -42,7 +42,6 @@ import ve.com.abicelis.prizewheellib.model.WheelSection;
 
 public class PrizeWheelView extends RelativeLayout {
 
-
     //Internal data
     ImageView mWheel;
     ImageView mMarker;
@@ -148,6 +147,16 @@ public class PrizeWheelView extends RelativeLayout {
 
     /* Public setters */
 
+    /**
+     * Populate a PrizeWheelView with a List of WheelSections such as
+     * {@link ve.com.abicelis.prizewheellib.model.WheelBitmapSection},
+     * {@link ve.com.abicelis.prizewheellib.model.WheelColorSection} and
+     * {@link ve.com.abicelis.prizewheellib.model.WheelDrawableSection}.
+     * As PrizeWheelView supports Bitmaps, Colors and Drawables.
+     * NOTE: Enter at least {@value ve.com.abicelis.prizewheellib.Constants#MINIMUM_WHEEL_SECTIONS}
+     * WheelSections and at most {@value ve.com.abicelis.prizewheellib.Constants#MAXIMUM_WHEEL_SECTIONS}.
+     * @param wheelSections a List of WheelSections
+     */
     public void setWheelSections(List<WheelSection> wheelSections) {
         if(wheelSections == null || wheelSections.size() < Constants.MINIMUM_WHEEL_SECTIONS || wheelSections.size() > Constants.MAXIMUM_WHEEL_SECTIONS)
             throw new InvalidWheelSectionsException();
@@ -155,6 +164,12 @@ public class PrizeWheelView extends RelativeLayout {
         mWheelSections = wheelSections;
     }
 
+    /**
+     * Set a position of the wheel Marker. Please see
+     * {@link ve.com.abicelis.prizewheellib.model.MarkerPosition} for all the options.
+     * DEFAULT VALUE: {@link ve.com.abicelis.prizewheellib.model.MarkerPosition#TOP}
+     * @param markerPosition A {@link ve.com.abicelis.prizewheellib.model.MarkerPosition}
+     */
     public void setMarkerPosition(@NonNull MarkerPosition markerPosition) {
         mMarkerPosition = markerPosition;
         mMarkerContainer.setRotation(mMarkerPosition.getDegreeOffset());
@@ -162,7 +177,7 @@ public class PrizeWheelView extends RelativeLayout {
 
     /**
      * Set the initial fling dampening.
-     * Recommend a number between 1.0 (no dampening) and 5.0 (lots of dampening). Default 3.0
+     * NOTE: A number between 1.0 (no dampening) and 5.0 (lots of dampening) is recommended. Default 3.0
      */
     public void setInitialFlingDampening(float dampening) {
         initialFlingDampening = dampening;
@@ -170,34 +185,58 @@ public class PrizeWheelView extends RelativeLayout {
 
     /**
      * Set the velocity dampening when wheel is flung.
-     * Recommend a number between 1 (no dampening) and 1.1 (lots of dampening). Default 1.06
+     * NOTE: A number between 1 (no dampening) and 1.1 (lots of dampening) is recommended. Default 1.06
      */
     public void setFlingVelocityDampening(float dampening) {
         initialFlingDampening = dampening;
     }
 
+    /**
+     * Set the color of the wheel's border.
+     * DEFAULT: No border
+     */
     public void setWheelBorderLineColor(@ColorRes int color) {
         mWheelBorderLineColor = color;
     }
 
+    /**
+     * Set the thickness of the wheel's border in dp.
+     * DEFAULT: No border
+     */
     public void setWheelBorderLineThickness(int thickness) {
         if(thickness >= 0)
             mWheelBorderLineThickness = thickness;
     }
 
+    /**
+     * Set the color of the wheel section separator lines.
+     * DEFAULT: No border
+     */
     public void setWheelSeparatorLineColor(@ColorRes int color) {
         mWheelSeparatorLineColor = color;
     }
 
+    /**
+     * Set the thickness of the wheel section separator lines in dp.
+     * DEFAULT: No border
+     */
     public void setWheelSeparatorLineThickness(int thickness) {
         if(thickness >= 0)
             mWheelSeparatorLineThickness = thickness;
     }
 
+    /**
+     * Set {@link ve.com.abicelis.prizewheellib.WheelEventsListener}, a listener interface.
+     * to receive events such as: onWheelStopped(), onWheelFlung() and onWheelSettled()
+     */
     public void setWheelEventsListener(WheelEventsListener listener) {
         mListener = listener;
     }
 
+    /**
+     * This method MUST BE CALLED AFTER all pervious settings have been set.dp.
+     * DEFAULT: No border
+     */
     public void generateWheel() {
         if(wheelHeight == 0)        //If view doesn't have width/height yet
             mCanGenerateWheel = true;
@@ -205,14 +244,17 @@ public class PrizeWheelView extends RelativeLayout {
             generateWheelImage();
     }
 
+    /**
+     * Call this method to manually stop the wheel
+     */
     public void stopWheel(){
         allowRotating = false;
     }
 
     /**
-     * Fling the wheel
+     * Call this method to manually fling the wheel
      * @param velocity the speed of the fling
-     * @param clockwise
+     * @param clockwise the direction of the rotation.
      */
     public void flingWheel(int velocity, boolean clockwise) {
         doFlingWheel((clockwise ? -velocity : velocity));
@@ -385,7 +427,7 @@ public class PrizeWheelView extends RelativeLayout {
             Paint color = new Paint(Paint.ANTI_ALIAS_FLAG);
             color.setColor(ContextCompat.getColor(getContext(), mWheelSeparatorLineColor));
             color.setStyle(Paint.Style.STROKE);
-            color.setStrokeWidth(mWheelSeparatorLineThickness);
+            color.setStrokeWidth(DimensionUtil.convertDpToPixel(mWheelSeparatorLineThickness));
 
 
             int r = Math.min(wheelWidth, wheelHeight)/2;
@@ -410,7 +452,7 @@ public class PrizeWheelView extends RelativeLayout {
             Paint color = new Paint(Paint.ANTI_ALIAS_FLAG);
             color.setColor(ContextCompat.getColor(getContext(), mWheelBorderLineColor));
             color.setStyle(Paint.Style.STROKE);
-            color.setStrokeWidth(mWheelBorderLineThickness);
+            color.setStrokeWidth(DimensionUtil.convertDpToPixel(mWheelBorderLineThickness));
 
             resultCanvas.drawCircle(wheelWidth/2, wheelHeight/2, (Math.min(wheelWidth, wheelHeight)-mWheelBorderLineThickness)/2, color);
         }
