@@ -79,6 +79,7 @@ public class HomeActivity extends AppCompatActivity {
         wheelSections.add(new WheelDrawableSection(R.drawable.abstract_6));
         wheelSections.add(new WheelDrawableSection(R.drawable.abstract_7));
         wheelSections.add(new WheelDrawableSection(R.drawable.abstract_8));
+        wheelSections.add(new WheelDrawableSection(R.drawable.example_layer_list_drawable));
         wheelSections.add(new WheelColorSection(R.color.green));
         wheelSections.add(new WheelColorSection(R.color.orange));
         wheelSections.add(new WheelColorSection(R.color.blue));
