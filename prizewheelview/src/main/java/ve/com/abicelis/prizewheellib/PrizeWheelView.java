@@ -47,6 +47,7 @@ public class PrizeWheelView extends RelativeLayout {
     ImageView mMarker;
     RelativeLayout mMarkerContainer;
     private int wheelHeight, wheelWidth;
+    private static float angleOffset;
     private static Matrix matrix;
     private GestureDetector gestureDetector;
     private WheelTouchListener touchListener;
@@ -302,7 +303,7 @@ public class PrizeWheelView extends RelativeLayout {
     private static double getCurrentRotation() {
         float[] v = new float[9];
         matrix.getValues(v);
-        double angle = Math.round((Math.atan2(v[Matrix.MSKEW_X], v[Matrix.MSCALE_X]) * (180 / Math.PI)) );
+        double angle = Math.round( (Math.atan2(v[Matrix.MSKEW_X], v[Matrix.MSCALE_X]) * (180 / Math.PI)) - angleOffset );
 
         if(angle > 0)
             return angle;
@@ -329,17 +330,30 @@ public class PrizeWheelView extends RelativeLayout {
     }
 
     /**
-     * Generates the wheel bitmap.
-     *
+     * Generates the wheel bitmap
      */
     private void generateWheelImage() {
 
         if(mWheelSections == null)
             throw new InvalidWheelSectionsException("You must use setWheelSections() to set the sections of the wheel.");
 
-        float startAngle = 0f;
-        float sweepAngle = (360.0f / mWheelSections.size());
-        RectF box = new RectF(2, 2, wheelWidth-2 , wheelHeight-2);
+        // _______________________
+        // |                     |
+        // |                     |
+        // |          ^ -----    |
+        // |        *   *   <------ startAngle
+        // |      *       *      |
+        // |    *      <----*------ sweepAngle
+        // |       *  _  *       |
+        // _______________________
+
+        int wheelSectionCount = mWheelSections.size();
+        float sweepAngle = (360.0f / wheelSectionCount);
+        float startAngle = 90 - sweepAngle/2;
+        angleOffset = startAngle;                   //save angle, will be used later
+
+
+
 
         //Init whitePaint for masking
         Paint whitePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -357,6 +371,14 @@ public class PrizeWheelView extends RelativeLayout {
         Canvas resultCanvas = new Canvas(result);
         Canvas maskCanvas = new Canvas(mask);
 
+        //Draw mask arc
+        RectF box = new RectF(2, 2, wheelWidth-2 , wheelHeight-2);
+        maskCanvas.drawArc(box, startAngle, sweepAngle, true, whitePaint);
+
+        //Get a Rect enclosing the mask
+        Rect drawnMaskRect = ImageUtil.cropTransparentPixelsFromImage(mask);
+
+
 
         for(WheelSection section : mWheelSections) {
 
@@ -370,15 +392,11 @@ public class PrizeWheelView extends RelativeLayout {
                 colorPaint.setStyle(Paint.Style.FILL_AND_STROKE);
                 resultCanvas.drawArc(box, startAngle, sweepAngle, true, colorPaint);
 
-                startAngle += sweepAngle;
+                //Rotate the canvas sweepAngle degrees, around its center.
+                resultCanvas.rotate(sweepAngle, resultCanvas.getWidth()/2, resultCanvas.getHeight()/2);
                 continue;
             }
 
-
-            //Clear maskCanvas, draw new arc mask
-            maskCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-            maskCanvas.drawArc(box, startAngle, sweepAngle, true, whitePaint);
-            Rect drawnMaskRect = ImageUtil.getCroppedRect(mask);
 
             //Grab the bitmap for this section
             Bitmap sectionBitmap;
@@ -406,20 +424,25 @@ public class PrizeWheelView extends RelativeLayout {
             }
 
 
+            //Get center cropped bitmap
+            Bitmap sectionBitmapCropped = ImageUtil.getCenterCropBitmap(sectionBitmap, drawnMaskRect.width(), drawnMaskRect.height());
 
-            //Temp bitmap is necessary because sectionBitmap is immutable and therefore cannot be drawn to
+
+            //Create a blank temp bitmap to work on
             Bitmap temp = Bitmap.createBitmap(wheelWidth, wheelHeight, Bitmap.Config.ARGB_8888);
             Canvas tempCanvas = new Canvas(temp);
 
-            //Draw section image onto temp, then draw mask on it
-            tempCanvas.drawBitmap(sectionBitmap, null, drawnMaskRect, null);
+
+            //Draw cropped sectionBitmap image onto temp, then draw mask on it
+            tempCanvas.drawBitmap(sectionBitmapCropped, null, drawnMaskRect, null);
             tempCanvas.drawBitmap(mask, 0, 0, maskPaint);
 
             //Draw masked image to resultCanvas
             resultCanvas.drawBitmap(temp, 0, 0, new Paint());
 
-            //Increment startAngle
-            startAngle += sweepAngle;
+            //Rotate the canvas sweepAngle degrees, around its center.
+            resultCanvas.rotate(sweepAngle, resultCanvas.getWidth()/2, resultCanvas.getHeight()/2);
+
         }
 
         //If a wheel separator line color was set
@@ -437,7 +460,7 @@ public class PrizeWheelView extends RelativeLayout {
             for(int i = 0; i < mWheelSections.size() ; i++) {
 
 
-                double t = 2 * Math.PI * i / mWheelSections.size();
+                double t =  Math.toRadians(angleOffset) + (2 * Math.PI * i / mWheelSections.size());
                 int x = (int) Math.round(centerX + r * Math.cos(t));
                 int y = (int) Math.round(centerY + r * Math.sin(t));
 
