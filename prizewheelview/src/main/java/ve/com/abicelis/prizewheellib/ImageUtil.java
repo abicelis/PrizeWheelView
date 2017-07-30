@@ -1,7 +1,10 @@
 package ve.com.abicelis.prizewheellib;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.ThumbnailUtils;
 
 import java.util.Arrays;
@@ -93,6 +96,21 @@ public class ImageUtil {
             float calculatedWidth = destHeight*destAspectRatio;
             return ThumbnailUtils.extractThumbnail(bitmap, (int)calculatedWidth, (int)destHeight);
         }
+    }
+
+
+    public static Bitmap drawableToBitmap(Drawable drawable) {
+
+        if (drawable instanceof BitmapDrawable) {
+            return ((BitmapDrawable)drawable).getBitmap();
+        }
+
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+
+        return bitmap;
     }
 
 }
