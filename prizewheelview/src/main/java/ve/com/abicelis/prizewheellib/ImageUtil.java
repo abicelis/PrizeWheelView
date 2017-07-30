@@ -2,6 +2,7 @@ package ve.com.abicelis.prizewheellib;
 
 import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.media.ThumbnailUtils;
 
 import java.util.Arrays;
 
@@ -17,7 +18,7 @@ public class ImageUtil {
      * Not my code, extracted from:
      * https://github.com/AlvaroMenezes/CropTrimTransparentImage
      */
-    public static Rect getCroppedRect(Bitmap bitmap){
+    public static Rect cropTransparentPixelsFromImage(Bitmap bitmap){
 
         int height = bitmap.getHeight();
         int width = bitmap.getWidth();
@@ -69,6 +70,29 @@ public class ImageUtil {
         return new Rect(left, top, right, bottom);
         //Bitmap cropedBitmap = Bitmap.createBitmap(bitmap, left, top, right-left, bottom-top);
         //return cropedBitmap;
+    }
+
+
+    /**
+     * Returns a center cropped bitmap from a source bitmap given a destination width and height
+     * @param bitmap The source bitmap
+     * @param destWidth The destination's width
+     * @param destHeight The destination's height
+     * @return A center cropped Bitmap
+     */
+    public static Bitmap getCenterCropBitmap(Bitmap bitmap, float destWidth, float destHeight) {
+        float destAspectRatio = destWidth/destHeight;
+        float srcAspectRatio = ((float)bitmap.getWidth())/bitmap.getHeight();
+
+        if(destAspectRatio == srcAspectRatio) {             //No need to crop
+            return bitmap;
+        } else if (destAspectRatio > srcAspectRatio) {
+            float calulatedHeight = destWidth/destAspectRatio;
+            return ThumbnailUtils.extractThumbnail(bitmap, (int)destWidth, (int)calulatedHeight);
+        } else {
+            float calculatedWidth = destHeight*destAspectRatio;
+            return ThumbnailUtils.extractThumbnail(bitmap, (int)calculatedWidth, (int)destHeight);
+        }
     }
 
 }
