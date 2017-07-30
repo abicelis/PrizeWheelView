@@ -12,6 +12,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -407,9 +408,13 @@ public class PrizeWheelView extends RelativeLayout {
                         throw new InvalidWheelSectionDataException("Invalid bitmap. WheelSection data = " + section.toString());
                     break;
                 case DRAWABLE:
+                    //Try to get bitmap drawable (jpg, png) or xml based drawable (xml, layer-list, etc)
                     int drawableRes = ((WheelDrawableSection)section).getDrawableRes();
-                    sectionBitmap = BitmapFactory.decodeResource(getContext().getResources(), drawableRes);
+                    Drawable d = ContextCompat.getDrawable(getContext(), drawableRes);
+                    sectionBitmap = ImageUtil.drawableToBitmap(d);
+
                     if(sectionBitmap == null) {
+
                         try {
                             //Try to get the name
                             String resourceEntryName = getResources().getResourceEntryName(drawableRes);
