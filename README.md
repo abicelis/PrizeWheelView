@@ -24,12 +24,25 @@ Please see the sample application below!
 
 
 ## Gradle dependency
-```javascript
+
+Add this to your project `build.gradle`
+
+```groovy
+    repositories {
+        // ...
+
+        maven { url 'https://jitpack.io' }
+    }
+
+```
+Add this to your app module:
+```groovy
+
 	dependencies {
-    		compile 've.com.abicelis:prizewheelview:1.0.6'
+        // ...
+        implementation 'com.github.abicelis:PrizeWheelView:1.1.0'
 	}
 ```
-
 ## Usage
 
 1) **Add the view to your layout**
