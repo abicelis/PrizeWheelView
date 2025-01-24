@@ -123,7 +123,7 @@ public class HomeActivity extends AppCompatActivity {
             Toast.makeText(HomeActivity.this, "Wheel settled at " + angle + "°. Section #" + sectionIndex, Toast.LENGTH_SHORT).show();
 
 
-            Animation fadeOut = AnimationUtils.loadAnimation(HomeActivity.this, R.anim.fade_out);
+            Animation fadeOut = AnimationUtils.loadAnimation(HomeActivity.this, ve.com.abicelis.prizewheellib.R.anim.fade_out);
             homeImage.startAnimation(fadeOut);
 
             fadeOut.setAnimationListener(new Animation.AnimationListener() {
@@ -147,7 +147,7 @@ public class HomeActivity extends AppCompatActivity {
                             break;
                     }
 
-                    Animation fadeIn = AnimationUtils.loadAnimation(HomeActivity.this, R.anim.fade_in);
+                    Animation fadeIn = AnimationUtils.loadAnimation(HomeActivity.this, ve.com.abicelis.prizewheellib.R.anim.fade_in);
                     homeImage.startAnimation(fadeIn);
                 }
                 @Override
