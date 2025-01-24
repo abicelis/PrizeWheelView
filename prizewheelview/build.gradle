@@ -1,28 +1,7 @@
-apply plugin: 'com.android.library'
-
-//ext {
-//    bintrayRepo = 'android-libraries'
-//    bintrayName = 'prizewheelview'
-//
-//    publishedGroupId = 've.com.abicelis'
-//    libraryName = 'prizewheelview'
-//    artifact = 'prizewheelview'
-//
-//    libraryDescription = 'Rotating and fling-able PrizeWheel View'
-//
-//    siteUrl = 'https://github.com/abicelis/PrizeWheelView'
-//    gitUrl = 'https://github.com/abicelis/PrizeWheelView.git'
-//
-//    libraryVersion = '1.0.6'
-//
-//    developerId = 'abicelis'
-//    developerName = 'Alejandro Bicelis'
-//    developerEmail = 'abicelis@gmail.com'
-//
-//    licenseName = 'The Apache Software License, Version 2.0'
-//    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-//    allLicenses = ["Apache-2.0"]
-//}
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+}
 
 android {
     namespace "ve.com.abicelis.prizewheellib"
@@ -56,6 +35,15 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 }
 
-// Place it at the end of the file
-//apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
-//apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.findByName('release')
+                groupId = 've.com.abicelis'
+                artifactId = 'prizewheelview'
+                version = '1.1.0'
+            }
+        }
+    }
+}
