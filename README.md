@@ -2,7 +2,8 @@
 
 [![jcenter](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/abicelis/PrizeWheelView/blob/master/LICENSE)
 [![jcenter](https://img.shields.io/badge/platform-android-green.svg)](https://developer.android.com/index.html)
-[![jcenter](https://img.shields.io/badge/jcenter-v1.0.1-green.svg)](http://jcenter.bintray.com/ve/com/abicelis/prizewheelview/)
+![JitPack](https://img.shields.io/jitpack/version/ve.com.abicelis/prizewheelview)
+
 
 
 
